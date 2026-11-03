@@ -7,7 +7,15 @@
 main([NodesStr, RequestsStr]) ->
     NumNodes = list_to_integer(NodesStr),
     NumRequests = list_to_integer(RequestsStr),
-    io:format("Nodes: ~p  Requests/node: ~p~n", [NumNodes, NumRequests]);
+    Stats = stats:start(NumNodes * NumRequests, self()),
+    Nodes = start_network(NumNodes, kv_app, kv_app:new(), Stats),
+    [Pid ! {start_requests, NumRequests} || {_, Pid} <- Nodes],
+    receive
+        {done, Total, AvgHops} ->
+            io:format("Nodes: ~p  Requests/node: ~p  Messages delivered: ~p~n",
+                      [NumNodes, NumRequests, Total]),
+            io:format("Average number of hops: ~.3f~n", [AvgHops])
+    end;
 main(_) ->
     io:format("Usage: project3 numNodes numRequests~n"),
     halt(1).

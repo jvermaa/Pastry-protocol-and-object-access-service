@@ -36,9 +36,8 @@ loop(S) ->
         {announce, {_, XPid} = X} ->
             XPid ! announce_ack,
             loop(add_node(X, S));
-        {get_state, From} ->
-            From ! {state, S#st.ls, S#st.rt},
-            loop(S)
+        AppMsg ->
+            loop(S#st{app_state = (S#st.app):handle(AppMsg, S#st.app_state)})
     end.
 
 

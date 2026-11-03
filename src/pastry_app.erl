@@ -11,3 +11,6 @@
 
 %% Pastry calls new_leafs when the leaf set of this node changes.
 -callback new_leafs(LeafSet :: [{integer(), pid()}], State :: term()) -> term().
+
+%% Pastry calls handle for each message to this node that is not a Pastry message.
+-callback handle(Msg :: term(), State :: term()) -> term().
